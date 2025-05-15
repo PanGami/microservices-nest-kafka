@@ -1,5 +1,7 @@
 syntax = "proto3";
 
+option go_package = "https://github.com/PanGami/microservices-nest-kafka/tree/main/gateway/proto"; 
+
 package order;
 
 service InventoryService {
