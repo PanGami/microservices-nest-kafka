@@ -13,7 +13,7 @@ import { join } from 'path';
         options: {
           package: 'order',
           protoPath: join(__dirname, '../../proto/order.proto'),
-          url: 'localhost:50051',
+          url: 'order-service:50051',
         },
       },
     ]),
