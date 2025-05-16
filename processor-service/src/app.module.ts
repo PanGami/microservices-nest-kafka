@@ -6,7 +6,7 @@ import { KafkaConsumerController } from './kafka/kafka.consumer';
 
 @Module({
   imports: [
-    MongooseModule.forRoot('mongodb://localhost:27017/orders'),
+    MongooseModule.forRoot(process.env.MONGO_URI || 'mongodb://localhost:27017/orders'),
     MongooseModule.forFeature([{ name: Order.name, schema: OrderSchema }]),
   ],
   controllers: [KafkaConsumerController],

@@ -7,7 +7,7 @@ export class KafkaService implements OnModuleInit {
 
   async onModuleInit() {
     const kafka = new Kafka({
-      brokers: ['localhost:9092'],
+      brokers: [process.env.KAFKA_BROKER || 'kafka:9092'],
     });
 
     this.producer = kafka.producer();

@@ -10,11 +10,11 @@ import { KafkaService } from './kafka/kafka.service';
   imports: [
     TypeOrmModule.forRoot({
       type: 'mysql',
-      host: 'localhost',
-      port: 3306,
-      username: 'root',
-      password: 'password',
-      database: 'orders_db',
+      host: process.env.DB_HOST || 'localhost',
+      port: parseInt(process.env.DB_PORT ?? '3306'),
+      username: process.env.DB_USER || 'root',
+      password: process.env.DB_PASS || 'password',
+      database: process.env.DB_NAME || 'orders_db',
       entities: [Order],
       synchronize: true,
     }),
