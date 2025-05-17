@@ -1,16 +1,15 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Order } from './order/order.entity';
-import { OrderController } from './order/order.controller';
-import { OrderService } from './order/order.service';
-import { GrpcInventoryController } from './grpc/grpc.controller';
-import { KafkaService } from './kafka/kafka.service';
+import { OrderModule } from './order/order.module';
+import { MongooseModule } from '@nestjs/mongoose';
 
 @Module({
   imports: [
+    OrderModule,
     TypeOrmModule.forRoot({
       type: 'mysql',
-      host: process.env.DB_HOST || 'localhost',
+      host: process.env.DB_HOST || 'mysql',
       port: parseInt(process.env.DB_PORT ?? '3306'),
       username: process.env.DB_USER || 'root',
       password: process.env.DB_PASS || 'password',
@@ -18,9 +17,7 @@ import { KafkaService } from './kafka/kafka.service';
       entities: [Order],
       synchronize: true,
     }),
-    TypeOrmModule.forFeature([Order]),
+    MongooseModule.forRoot(process.env.MONGO_URI ?? 'mongodb://mongodb:27017/order_logs'),
   ],
-  controllers: [OrderController, GrpcInventoryController],
-  providers: [OrderService, KafkaService],
 })
 export class AppModule {}

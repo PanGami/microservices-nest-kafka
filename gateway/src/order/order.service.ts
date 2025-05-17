@@ -1,31 +1,22 @@
-import { Inject, Injectable } from '@nestjs/common';
-import { ClientGrpc } from '@nestjs/microservices';
-import { lastValueFrom } from 'rxjs';
-
-interface InventoryService {
-  checkStock(data: { itemId: string }): any;
-}
+import { Injectable } from '@nestjs/common';
+import axios from 'axios';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
 
 @Injectable()
 export class OrderService {
-  private inventoryService: InventoryService;
+  constructor(@InjectModel('OrderLog') private logModel: Model<any>) {}
 
-  constructor(@Inject('ORDER_PACKAGE') private client: ClientGrpc) {}
+  async create(data: { itemId: string; quantity: number }) {
+    const response = await axios.post('http://order-service:3001/orders', data);
 
-  onModuleInit() {
-    this.inventoryService = this.client.getService<InventoryService>('InventoryService');
-  }
+    await this.logModel.create({
+      type: 'CREATE_ORDER',
+      status: response.data.status,
+      orderId: response.data.id,
+      timestamp: new Date(),
+    });
 
-  async createOrder(orderData: any) {
-    // Di sini kita forward ke REST endpoint dari order-service (nanti)
-    return {
-      message: 'Order diterima (sementara)',
-      data: orderData,
-    };
-  }
-
-  async checkStock(data: { itemId: string }) {
-    const res = await lastValueFrom(this.inventoryService.checkStock(data));
-    return res;
+    return response.data;
   }
 }

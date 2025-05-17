@@ -1,26 +1,48 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Order } from './order.entity';
 import { Repository } from 'typeorm';
-import { KafkaService } from '../kafka/kafka.service';
+import { Order } from './order.entity';
+import { Kafka } from 'kafkajs';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
 
 @Injectable()
 export class OrderService {
+  private kafka = new Kafka({ brokers: [process.env.KAFKA_BROKER ?? 'kafka:9092'] });
+  private producer = this.kafka.producer();
+
   constructor(
-    @InjectRepository(Order)
-    private orderRepo: Repository<Order>,
-    private kafkaService: KafkaService
-  ) {}
+    @InjectRepository(Order) private repo: Repository<Order>,
+    @InjectModel('OrderLog') private logModel: Model<any>,
+  ) {
+    this.connectKafka();
+  }
 
-  async create(orderData: Partial<Order>) {
-    const order = this.orderRepo.create(orderData);
-    const saved = await this.orderRepo.save(order);
+  async connectKafka() {
+    await this.producer.connect();
+  }
 
-    // Kirim event ke Kafka
-    await this.kafkaService.emit('order_created', {
+  async create(data: { itemId: string; quantity: number }) {
+    const order = this.repo.create({
+      itemId: data.itemId,
+      quantity: data.quantity,
+      status: 'on_process',
+    });
+
+    const saved = await this.repo.save(order);
+
+    // Send event to Kafka
+    await this.producer.send({
+      topic: 'order_created',
+      messages: [{ value: JSON.stringify(saved) }],
+    });
+
+    // Log to MongoDB
+    await this.logModel.create({
+      event: 'CREATE_ORDER',
       orderId: saved.id,
-      itemId: saved.itemId,
-      quantity: saved.quantity,
+      status: saved.status,
+      timestamp: new Date(),
     });
 
     return saved;

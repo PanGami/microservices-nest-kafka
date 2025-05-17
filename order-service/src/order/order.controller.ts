@@ -6,7 +6,7 @@ export class OrderController {
   constructor(private readonly orderService: OrderService) {}
 
   @Post()
-  async createOrder(@Body() body: any) {
+  async create(@Body() body: { itemId: string; quantity: number }) {
     return this.orderService.create(body);
   }
 }

@@ -11,6 +11,7 @@ services:
       - ./proto:/app/proto
     environment:
       - NODE_ENV=development
+    container_name: gateway
 
   order-service:
     build: ./order-service
@@ -28,6 +29,7 @@ services:
       - DB_PASS=password
       - DB_NAME=orders_db
       - KAFKA_BROKER=kafka:9092
+    container_name: order-service
 
   processor-service:
     build: ./processor-service
@@ -38,6 +40,7 @@ services:
       - ./proto:/app/proto
     environment:
       - MONGO_URI=mongodb://mongodb:27017/orders
+    container_name: processor-service
 
   zookeeper:
     image: confluentinc/cp-zookeeper:7.5.0
