@@ -22,8 +22,7 @@ export class OrderService {
     @InjectModel('OrderLog') private logModel: Model<any>,
   ) {}
 
-  async onModuleInit() {
-    this.producer = this.kafka.producer();
+  async onModuleInit() {    
     await this.producer.connect();
     console.log('Kafka Producer connected');
   }
@@ -42,6 +41,7 @@ export class OrderService {
       topic: 'order_created',
       messages: [{ value: JSON.stringify(saved) }],
     });
+    
     console.log('Order created and event sent to Kafka:', saved);
 
     // Log to MongoDB

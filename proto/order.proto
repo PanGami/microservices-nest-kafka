@@ -2,15 +2,27 @@ syntax = "proto3";
 
 package order;
 
-service InventoryService {
-  rpc CheckStock(CheckStockRequest) returns (CheckStockResponse);
+service OrderService {
+  rpc GetOrders (GetOrdersRequest) returns (GetOrdersResponse);
 }
 
-message CheckStockRequest {
-  string itemId = 1;
+message GetOrdersRequest {
+  int32 page = 1;
+  int32 limit = 2;
+  string itemId = 3;
+  string status = 4;
 }
 
-message CheckStockResponse {
-  bool inStock = 1;
-  int32 quantity = 2;
+message Order {
+  int32 id = 1;
+  string itemId = 2;
+  int32 quantity = 3;
+  string status = 4;
+}
+
+message GetOrdersResponse {
+  repeated Order orders = 1;
+  int32 total = 2;
+  int32 page = 3;
+  int32 limit = 4;
 }

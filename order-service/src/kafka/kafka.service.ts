@@ -11,7 +11,19 @@ export class KafkaService implements OnModuleInit {
     });
 
     this.producer = kafka.producer();
-    await this.producer.connect();
+    
+    let retries = 5;
+    while (retries > 0) {
+      try {
+        await this.producer.connect();
+        console.log('Kafka Producer connected');
+        break;
+      } catch (err) {
+        retries--;
+        console.warn(`Kafka connect failed. Retrying... (${5 - retries}/5)`);
+        await new Promise((res) => setTimeout(res, 2000)); // wait 2s
+      }
+    }
   }
 
   async emit(topic: string, message: any) {

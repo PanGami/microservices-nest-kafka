@@ -6,7 +6,6 @@ import { join } from 'path';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
-  // Microservice untuk gRPC
   app.connectMicroservice<MicroserviceOptions>({
     transport: Transport.GRPC,
     options: {
@@ -16,7 +15,6 @@ async function bootstrap() {
     },
   });
 
-  // Microservice untuk Kafka
   app.connectMicroservice<MicroserviceOptions>({
     transport: Transport.KAFKA,
     options: {
@@ -24,7 +22,7 @@ async function bootstrap() {
         clientId: 'order-client',
         brokers: [process.env.KAFKA_BROKER || 'kafka:9092'],
       },
-      producerOnlyMode: true, // karena ini hanya producer (optional)
+      producerOnlyMode: true,
     },
   });
 

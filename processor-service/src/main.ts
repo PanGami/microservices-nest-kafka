@@ -13,6 +13,9 @@ async function bootstrap() {
       consumer: {
         groupId: 'processor-consumer',
       },
+      subscribe: {
+        fromBeginning: true,
+      },
     },
   });
 

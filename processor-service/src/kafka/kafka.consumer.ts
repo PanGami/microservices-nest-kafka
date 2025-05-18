@@ -14,7 +14,7 @@ export class KafkaConsumer implements OnModuleInit {
   async handleOrderCreated(@Payload() message: any, @Ctx() context: KafkaContext) {
     console.log('[Kafka] Received:', message);
 
-    const orderId = message.id; // ⬅️ langsung pakai message.id, BUKAN message.value.orderId
+    const orderId = message.id;
 
     await this.orderService.log(orderId, 'receive', 'Order message received');
     await this.orderService.updateOrderStatusToDone(orderId);
