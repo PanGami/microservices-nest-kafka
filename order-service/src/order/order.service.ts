@@ -8,18 +8,24 @@ import { Model } from 'mongoose';
 
 @Injectable()
 export class OrderService {
-  private kafka = new Kafka({ brokers: [process.env.KAFKA_BROKER ?? 'kafka:9092'] });
+  private kafka = new Kafka({ 
+    brokers: [process.env.KAFKA_BROKER ?? 'kafka:9092'],
+    retry: {
+      retries: 5,
+      initialRetryTime: 300,
+    },
+  });
   private producer = this.kafka.producer();
 
   constructor(
     @InjectRepository(Order) private repo: Repository<Order>,
     @InjectModel('OrderLog') private logModel: Model<any>,
-  ) {
-    this.connectKafka();
-  }
+  ) {}
 
-  async connectKafka() {
+  async onModuleInit() {
+    this.producer = this.kafka.producer();
     await this.producer.connect();
+    console.log('Kafka Producer connected');
   }
 
   async create(data: { itemId: string; quantity: number }) {
@@ -31,11 +37,12 @@ export class OrderService {
 
     const saved = await this.repo.save(order);
 
-    // Send event to Kafka
+    console.log('Sending order_created event to Kafka:', saved);
     await this.producer.send({
       topic: 'order_created',
       messages: [{ value: JSON.stringify(saved) }],
     });
+    console.log('Order created and event sent to Kafka:', saved);
 
     // Log to MongoDB
     await this.logModel.create({

@@ -1,12 +1,12 @@
-version: '3.9'
-
 services:
   gateway:
     build: ./gateway
+    restart: on-failure
     ports:
       - "3000:3000"
     depends_on:
-      - order-service
+      mongodb:
+        condition: service_healthy
     volumes:
       - ./proto:/app/proto
     environment:
@@ -15,11 +15,16 @@ services:
 
   order-service:
     build: ./order-service
+    restart: on-failure
     ports:
       - "3001:3001"
     depends_on:
-      - mysql
-      - kafka
+      mysql:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+      mongodb:
+        condition: service_healthy
     volumes:
       - ./proto:/app/proto
     environment:
@@ -33,13 +38,16 @@ services:
 
   processor-service:
     build: ./processor-service
+    restart: on-failure
     depends_on:
-      - kafka
-      - mongodb
+      mysql:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+      mongodb:
+        condition: service_healthy
     volumes:
       - ./proto:/app/proto
-    environment:
-      - MONGO_URI=mongodb://mongodb:27017/orders
     container_name: processor-service
 
   zookeeper:
@@ -47,25 +55,45 @@ services:
     environment:
       ZOOKEEPER_CLIENT_PORT: 2181
       ZOOKEEPER_TICK_TIME: 2000
+    volumes:
+      - ./zoo.cfg:/conf/zoo.cfg
+    healthcheck:
+      test: ["CMD", "echo", "ruok", "|", "nc", "localhost", "2181"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     ports:
       - "2181:2181"
 
   kafka:
-    image: confluentinc/cp-kafka:7.5.0
-    depends_on:
-      - zookeeper
+    image: bitnami/kafka:3.6
     ports:
       - "9092:9092"
+    depends_on:
+      zookeeper:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "bash", "-c", "kafka-topics.sh --bootstrap-server kafka:9092 --list || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     environment:
       KAFKA_BROKER_ID: 1
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
       KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      ALLOW_PLAINTEXT_LISTENER: "yes"
 
   mysql:
     image: mysql:8.0
     ports:
       - "3306:3306"
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p=password"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     environment:
       MYSQL_ROOT_PASSWORD: password
       MYSQL_DATABASE: orders_db
@@ -74,6 +102,11 @@ services:
 
   mongodb:
     image: mongo:6.0
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     ports:
       - "27017:27017"
     volumes:

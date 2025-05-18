@@ -7,7 +7,8 @@ async function bootstrap() {
     transport: Transport.KAFKA,
     options: {
       client: {
-        brokers: ['localhost:9092'],
+        clientId: 'processor-client',
+        brokers: [process.env.KAFKA_BROKER || 'kafka:9092'],
       },
       consumer: {
         groupId: 'processor-consumer',
@@ -16,5 +17,6 @@ async function bootstrap() {
   });
 
   await app.listen();
+  console.log('Processor service is listening for Kafka messages...');
 }
 bootstrap();

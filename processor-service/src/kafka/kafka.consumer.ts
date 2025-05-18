@@ -1,19 +1,25 @@
-import { Controller, Logger } from '@nestjs/common';
-import { EventPattern, Payload } from '@nestjs/microservices';
+import { Injectable, OnModuleInit } from '@nestjs/common';
+import { MessagePattern, Payload, Ctx, KafkaContext } from '@nestjs/microservices';
 import { OrderService } from '../order/order.service';
 
-@Controller()
-export class KafkaConsumerController {
-  private readonly logger = new Logger(KafkaConsumerController.name);
-
+@Injectable()
+export class KafkaConsumer implements OnModuleInit {
   constructor(private readonly orderService: OrderService) {}
 
-  @EventPattern('order_created')
-  async handleOrderCreated(@Payload() message: any) {
-    const order = message.value;
-    this.logger.log(`Order Received from Kafka: ${JSON.stringify(order)}`);
+  async onModuleInit() {
+    console.log('KafkaConsumer ready and listening...');
+  }
 
-    // Simpan ke MongoDB (opsional)
-    await this.orderService.saveOrder(order);
+  @MessagePattern('order_created')
+  async handleOrderCreated(@Payload() message: any, @Ctx() context: KafkaContext) {
+    console.log('[Kafka] Received:', message);
+
+    const orderId = message.id; // ⬅️ langsung pakai message.id, BUKAN message.value.orderId
+
+    await this.orderService.log(orderId, 'receive', 'Order message received');
+    await this.orderService.updateOrderStatusToDone(orderId);
+
+    const originalKafkaMsg = context.getMessage();
+    console.log(`Processed message at offset ${originalKafkaMsg.offset}`);
   }
 }

@@ -1,16 +1,34 @@
 import { Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Order } from './order.entity';
+import { Repository } from 'typeorm';
 import { InjectModel } from '@nestjs/mongoose';
-import { Order, OrderDocument } from './order.schema';
 import { Model } from 'mongoose';
+import { OrderLog } from './order.schema';
 
 @Injectable()
 export class OrderService {
+  // Lets say that processor-service gonna have complex business logic
   constructor(
-    @InjectModel(Order.name) private orderModel: Model<OrderDocument>,
+    @InjectRepository(Order)
+    private readonly orderRepo: Repository<Order>,
+    @InjectModel(OrderLog.name)
+    private readonly logModel: Model<OrderLog>,
   ) {}
 
-  async saveOrder(data: any) {
-    const newOrder = new this.orderModel(data);
-    await newOrder.save();
+  async updateOrderStatusToDone(orderId: number): Promise<void> {
+    const order = await this.orderRepo.findOneBy({ id: orderId });
+    if (!order) {
+      await this.log(orderId, 'error', 'Order not found');
+      return;
+    }
+
+    order.status = 'done';
+    await this.orderRepo.save(order);
+    await this.log(orderId, 'update', 'Order status updated to done');
+  }
+
+  async log(orderId: number, step: string, message: string): Promise<void> {
+    await this.logModel.create({ orderId, step, message });
   }
 }

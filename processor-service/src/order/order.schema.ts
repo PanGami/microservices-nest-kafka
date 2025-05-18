@@ -2,6 +2,7 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
 
 export type OrderDocument = Order & Document;
+export type OrderLogDocument = OrderLog & Document;
 
 @Schema()
 export class Order {
@@ -15,4 +16,20 @@ export class Order {
   quantity: number;
 }
 
+@Schema()
+export class OrderLog extends Document {
+  @Prop()
+  orderId: number;
+
+  @Prop()
+  step: string;
+
+  @Prop()
+  message: string;
+
+  @Prop({ default: Date.now })
+  timestamp: Date;
+}
+
 export const OrderSchema = SchemaFactory.createForClass(Order);
+export const OrderLogSchema = SchemaFactory.createForClass(OrderLog);
