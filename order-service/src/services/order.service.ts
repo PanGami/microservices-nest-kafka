@@ -26,7 +26,6 @@ export class OrderService {
     console.log('Sending order_created event to Kafka:', saved);
     await this.KafkaProducer.emit('order_created', saved);
 
-    // Log to MongoDB
     await this.logModel.create({
       event: 'CREATE_ORDER',
       orderId: saved.id,

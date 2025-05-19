@@ -1,5 +1,4 @@
 import { Controller, Post, Body } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
 import { OrderService } from '../services/order.service';
 import { GrpcMethod } from '@nestjs/microservices';
 
