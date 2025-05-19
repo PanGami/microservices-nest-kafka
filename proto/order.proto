@@ -4,6 +4,7 @@ package order;
 
 service OrderService {
   rpc GetOrders (GetOrdersRequest) returns (GetOrdersResponse);
+  rpc GetOrderDetail(GetOrderDetailRequest) returns (GetOrderDetailResponse);
 }
 
 message GetOrdersRequest {
@@ -11,6 +12,14 @@ message GetOrdersRequest {
   int32 limit = 2;
   string itemId = 3;
   string status = 4;
+}
+
+message GetOrderDetailRequest {
+  string orderId = 1;
+}
+
+message GetOrderDetailResponse {
+  Order order = 1;
 }
 
 message Order {

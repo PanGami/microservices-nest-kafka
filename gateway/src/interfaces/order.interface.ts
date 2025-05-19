@@ -5,4 +5,6 @@ export interface GrpcOrderList {
     itemId?: string;
     status?: string;
   }): any;
+
+  GetOrderDetail(data: { orderId: string }): any; 
 }
