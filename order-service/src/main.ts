@@ -11,7 +11,7 @@ async function bootstrap() {
     options: {
       package: 'order',
       protoPath: join(__dirname, '../proto/order.proto'),
-      url: '0.0.0.0:50051',
+      url: process.env.GRPC_URI ?? '0.0.0.0:50051',
     },
   });
 

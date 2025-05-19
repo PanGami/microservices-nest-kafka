@@ -50,11 +50,6 @@ export class OrderService {
       order: { id: 'DESC' },
     });
 
-    return {
-      orders,
-      total,
-      page,
-      limit,
-    };
+    return { orders, total, page, limit };
   }
 }

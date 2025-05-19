@@ -20,7 +20,7 @@ export const grpcOptions = (
 });
 
 export const GrpcClients = [
-    grpcOptions('ORDER', 'order', 'order-service:50051'),
+    grpcOptions('ORDER', 'order', process.env.GRPC_URI ?? 'order-service:50051'),
     // jika ingin menambahkan grpc client lain
     // grpcClientOptions('USER', 'user', 'user-service:50052'),
     // grpcClientOptions('AUTH', 'auth', 'auth-service:50053'),

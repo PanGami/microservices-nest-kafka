@@ -21,7 +21,7 @@ export class OrderService implements OnModuleInit {
   }
 
   async create(data: { itemId: string; quantity: number }) {
-    const response = await axios.post('http://order-service:3001/orders', data);
+    const response = await axios.post(process.env.ORDER_URI + 'orders', data);
 
     await this.logModel.create({
       type: 'CREATE_ORDER',
