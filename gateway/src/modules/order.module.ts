@@ -1,15 +1,15 @@
 import { Module } from '@nestjs/common';
-import { OrderController } from './order.controller';
-import { OrderService } from './order.service';
+import { OrderController } from '../controllers/order.controller';
+import { OrderService } from '../services/order.service';
 import { ClientsModule } from '@nestjs/microservices';
-import { grpcClientOptions } from './grpc-client.provider';
+import { grpcOrderList } from '../grpc/order.grpc';
 import { MongooseModule } from '@nestjs/mongoose';
-import { OrderLogSchema } from './order.schema';
+import { OrderLogSchema } from '../schemas/order.schema';
 
 @Module({
   imports: [
     MongooseModule.forFeature([{ name: 'OrderLog', schema: OrderLogSchema }]),
-    ClientsModule.register([grpcClientOptions]),
+    ClientsModule.register([grpcOrderList]),
   ],
   controllers: [OrderController],
   providers: [OrderService],

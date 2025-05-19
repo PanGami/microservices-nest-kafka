@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
-import { GrpcOrderController } from './grpc.controller';
+import { GrpcOrderController } from '../controllers/grpc.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { Order } from '../order/order.entity';
+import { Order } from '../entities/order.entity';
 
 @Module({
   imports: [TypeOrmModule.forFeature([Order])],

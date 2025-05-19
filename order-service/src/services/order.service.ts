@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Order } from './order.entity';
+import { Order } from '../entities/order.entity';
 import { Kafka } from 'kafkajs';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';

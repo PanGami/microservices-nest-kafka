@@ -2,7 +2,7 @@ import { Controller } from '@nestjs/common';
 import { GrpcMethod } from '@nestjs/microservices';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, Like } from 'typeorm';
-import { Order } from '../order/order.entity';
+import { Order } from '../entities/order.entity';
 
 @Controller()
 export class GrpcOrderController {

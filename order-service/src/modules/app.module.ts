@@ -1,9 +1,9 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { Order } from './order/order.entity';
-import { OrderModule } from './order/order.module';
+import { Order } from '../entities/order.entity';
+import { OrderModule } from './order.module';
 import { MongooseModule } from '@nestjs/mongoose';
-import { GrpcModule } from './grpc/grpc.module';
+import { GrpcModule } from './grpc.module';
 
 @Module({
   imports: [

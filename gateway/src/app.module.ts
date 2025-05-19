@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { OrderModule } from './order/order.module';
+import { OrderModule } from './modules/order.module';
 import { MongooseModule } from '@nestjs/mongoose';
 
 @Module({

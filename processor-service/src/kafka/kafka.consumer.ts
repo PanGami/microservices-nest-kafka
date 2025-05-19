@@ -1,6 +1,6 @@
 import { Injectable, OnModuleInit } from '@nestjs/common';
 import { MessagePattern, Payload, Ctx, KafkaContext } from '@nestjs/microservices';
-import { OrderService } from '../order/order.service';
+import { OrderService } from '../services/order.service';
 
 @Injectable()
 export class KafkaConsumer implements OnModuleInit {

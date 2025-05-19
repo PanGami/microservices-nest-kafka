@@ -1,3 +1,4 @@
+import { GrpcOrderList } from '../interfaces/order.interface';
 import { Injectable, Inject, OnModuleInit } from '@nestjs/common';
 import axios from 'axios';
 import { InjectModel } from '@nestjs/mongoose';
@@ -5,26 +6,17 @@ import { Model } from 'mongoose';
 import { ClientGrpc } from '@nestjs/microservices';
 import { lastValueFrom } from 'rxjs';
 
-interface OrderServiceGrpc {
-  GetOrders(data: {
-    page?: number;
-    limit?: number;
-    itemId?: string;
-    status?: string;
-  }): any;
-}
-
 @Injectable()
 export class OrderService implements OnModuleInit {
-  private orderServiceGrpc: OrderServiceGrpc;
+  private orderServiceGrpc: GrpcOrderList;
 
   constructor(
     @InjectModel('OrderLog') private logModel: Model<any>,
-    @Inject('ORDER_PACKAGE') private client: ClientGrpc,
+    @Inject('ORDER_LIST') private client: ClientGrpc,
   ) {}
 
   onModuleInit() {
-    this.orderServiceGrpc = this.client.getService<OrderServiceGrpc>('OrderService');
+    this.orderServiceGrpc = this.client.getService<GrpcOrderList>('OrderService');
   }
 
   async create(data: { itemId: string; quantity: number }) {
