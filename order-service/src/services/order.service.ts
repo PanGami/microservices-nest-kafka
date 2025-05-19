@@ -1,17 +1,17 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, Like} from 'typeorm';
 import { Order } from '../entities/order.entity';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { KafkaService } from '../kafka/kafka';
+import { KafkaProducer } from '../kafka/kafka';
 
 @Injectable()
 export class OrderService {
   constructor(
     @InjectRepository(Order) private repo: Repository<Order>,
     @InjectModel('OrderLog') private logModel: Model<any>,
-    private kafkaService: KafkaService,
+    private KafkaProducer: KafkaProducer,
   ) {}
 
   async create(data: { itemId: string; quantity: number }) {
@@ -24,7 +24,7 @@ export class OrderService {
     const saved = await this.repo.save(order);
 
     console.log('Sending order_created event to Kafka:', saved);
-    await this.kafkaService.emit('order_created', saved);
+    await this.KafkaProducer.emit('order_created', saved);
 
     // Log to MongoDB
     await this.logModel.create({
@@ -35,5 +35,27 @@ export class OrderService {
     });
 
     return saved;
+  }
+
+  async list(data: any) {
+    const { page = 1, limit = 10, itemId, status } = data;
+
+    const where: any = {};
+    if (itemId) where.itemId = Like(`%${itemId}%`);
+    if (status) where.status = status;
+
+    const [orders, total] = await this.repo.findAndCount({
+      where,
+      skip: (page - 1) * limit,
+      take: limit,
+      order: { id: 'DESC' },
+    });
+
+    return {
+      orders,
+      total,
+      page,
+      limit,
+    };
   }
 }

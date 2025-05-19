@@ -3,11 +3,9 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { Order } from '../entities/order.entity';
 import { OrderModule } from './order.module';
 import { MongooseModule } from '@nestjs/mongoose';
-import { GrpcModule } from './grpc.module';
 
 @Module({
   imports: [
-    GrpcModule,
     OrderModule,
     TypeOrmModule.forRoot({
       type: 'mysql',
