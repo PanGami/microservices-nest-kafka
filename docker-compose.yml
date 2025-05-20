@@ -1,6 +1,8 @@
 services:
   gateway:
     build: ./gateway
+    env_file:
+      - ./gateway/.env
     restart: on-failure
     ports:
       - "3000:3000"
@@ -15,6 +17,8 @@ services:
 
   order-service:
     build: ./order-service
+    env_file:
+      - ./order-service/.env
     restart: on-failure
     ports:
       - "3001:3001"
@@ -38,6 +42,8 @@ services:
 
   processor-service:
     build: ./processor-service
+    env_file:
+      - ./processor-service/.env
     restart: on-failure
     depends_on:
       mysql:

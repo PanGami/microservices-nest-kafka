@@ -21,6 +21,7 @@ export class OrderService implements OnModuleInit {
   }
 
   async create(data: { itemId: string; quantity: number }) {
+    console.log("POST URI : ", process.env.ORDER_URI + 'orders');
     const response = await axios.post(process.env.ORDER_URI + 'orders', data);
 
     await this.logModel.create({
@@ -33,12 +34,7 @@ export class OrderService implements OnModuleInit {
     return response.data;
   }
 
-  async getOrders(params: {
-    page?: number;
-    limit?: number;
-    itemId?: string;
-    status?: string;
-  }) {
+  async getOrders(params: { page?: number; limit?: number; itemId?: string; status?: string}) {
     const { page = 1, limit = 10, itemId, status } = params;
 
     return lastValueFrom(
@@ -46,9 +42,9 @@ export class OrderService implements OnModuleInit {
     );
   }
 
-  async getDetailOrder(orderId: string) {
+  async getDetailOrder(id: string) {
     return await lastValueFrom(
-      this.orderServiceGrpc.GetOrderDetail({ orderId }),
+      this.orderServiceGrpc.GetOrderDetail({ id }),
     );
   }
 }

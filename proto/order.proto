@@ -15,7 +15,7 @@ message GetOrdersRequest {
 }
 
 message GetOrderDetailRequest {
-  string orderId = 1;
+  string id = 1;
 }
 
 message GetOrderDetailResponse {
@@ -23,8 +23,8 @@ message GetOrderDetailResponse {
 }
 
 message Order {
-  int32 id = 1;
-  string itemId = 2;
+  string id = 1;
+  string name = 2;
   int32 quantity = 3;
   string status = 4;
 }

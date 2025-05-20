@@ -5,6 +5,7 @@ import { Repository } from 'typeorm';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { OrderLog } from '../schemas/order.schema';
+import { Log } from '../helper/global.helper';
 
 @Injectable()
 export class OrderService {
@@ -16,19 +17,15 @@ export class OrderService {
     private readonly logModel: Model<OrderLog>,
   ) {}
 
-  async updateOrderStatusToDone(orderId: number): Promise<void> {
+  async updateOrderStatusToDone(orderId: string): Promise<void> {
     const order = await this.orderRepo.findOneBy({ id: orderId });
     if (!order) {
-      await this.log(orderId, 'error', 'Order not found');
+      await Log(this.logModel, orderId, 'error', 'Order not found');
       return;
     }
 
     order.status = 'done';
     await this.orderRepo.save(order);
-    await this.log(orderId, 'update', 'Order status updated to done');
-  }
-
-  async log(orderId: number, step: string, message: string): Promise<void> {
-    await this.logModel.create({ orderId, step, message });
+    await Log(this.logModel, orderId, 'update', 'Order status updated to done');
   }
 }

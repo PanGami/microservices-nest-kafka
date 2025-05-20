@@ -1,10 +1,14 @@
 import { Injectable, OnModuleInit } from '@nestjs/common';
 import { MessagePattern, Payload, Ctx, KafkaContext } from '@nestjs/microservices';
 import { OrderService } from '../services/order.service';
+import { OrderLog } from '../schemas/order.schema';
+import { InjectModel } from '@nestjs/mongoose';
+import { Log } from '../helper/global.helper'
+import { Model } from 'mongoose';
 
 @Injectable()
 export class KafkaConsumer implements OnModuleInit {
-  constructor(private readonly orderService: OrderService) {}
+  constructor(private readonly orderService: OrderService, @InjectModel(OrderLog.name) private readonly logModel: Model<OrderLog>) {}
 
   async onModuleInit() {
     console.log('KafkaConsumer ready and listening...');
@@ -16,7 +20,7 @@ export class KafkaConsumer implements OnModuleInit {
 
     const orderId = message.id;
 
-    await this.orderService.log(orderId, 'receive', 'Order message received');
+    await Log(this.logModel, orderId, 'receive', 'Order message received');
     await this.orderService.updateOrderStatusToDone(orderId);
 
     const originalKafkaMsg = context.getMessage();

@@ -14,9 +14,9 @@ export class OrderService {
     private KafkaProducer: KafkaProducer,
   ) {}
 
-  async create(data: { itemId: string; quantity: number }) {
+  async create(data: { name: string; quantity: number }) {
     const order = this.repo.create({
-      itemId: data.itemId,
+      name: data.name,
       quantity: data.quantity,
       status: 'on_process',
     });
@@ -28,7 +28,8 @@ export class OrderService {
 
     await this.logModel.create({
       event: 'CREATE_ORDER',
-      orderId: saved.id,
+      name: saved.name,
+      quantity: saved.quantity,
       status: saved.status,
       timestamp: new Date(),
     });
@@ -51,5 +52,20 @@ export class OrderService {
     });
 
     return { orders, total, page, limit };
+  }
+
+  async detail(id: string) {
+    console.log('Fetching order detail for ID:', id);
+    if (!id) {
+      throw new Error('Order ID must be provided');
+    }
+
+    const order = await this.repo.findOne({ where: { id } });
+
+    if (!order) {
+      throw new Error(`Order with id ${id} not found`);
+    }
+
+    return { order };
   }
 }

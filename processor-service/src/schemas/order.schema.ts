@@ -7,7 +7,7 @@ export type OrderLogDocument = OrderLog & Document;
 @Schema()
 export class Order {
   @Prop()
-  orderId: number;
+  orderId: string;
 
   @Prop()
   itemId: string;
@@ -19,7 +19,7 @@ export class Order {
 @Schema()
 export class OrderLog extends Document {
   @Prop()
-  orderId: number;
+  orderId: string;
 
   @Prop()
   step: string;
